@@ -105,6 +105,12 @@ func (s *Service) CreateBundle(id, root, output string) (CreateResult, error) {
 		return CreateResult{}, err
 	}
 	for _, p := range result.Pages {
+		if p.IsFailed() {
+			if err = b.WriteFailureNotice(p); err != nil {
+				return CreateResult{}, err
+			}
+			continue
+		}
 		if body, ok := result.Bodies[p.URL]; ok {
 			if err = b.WritePage(p, builder.SanitizeBody(body)); err != nil {
 				return CreateResult{}, err

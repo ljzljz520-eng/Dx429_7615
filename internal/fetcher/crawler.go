@@ -57,6 +57,8 @@ func (c *Crawler) Crawl() (Result, error) {
 		page := domain.NewDocumentPage(c.JobID, current, domain.PagePath(current))
 		body, status, fetchErr := c.fetch(current)
 		if fetchErr != nil || status >= 400 {
+			page.MarkFailed(fetchError(status, fetchErr))
+			result.Pages = append(result.Pages, page)
 			continue
 		}
 		title, links, assets := ParseDocument(current, body)
@@ -101,6 +103,11 @@ func (c *Crawler) Crawl() (Result, error) {
 	}
 	if len(result.Pages) == 0 {
 		return result, errors.New("root page could not be fetched")
+	}
+	for _, page := range result.Pages {
+		if page.URL == c.Root && page.IsFailed() {
+			return result, fmt.Errorf("root page could not be fetched: %s", page.Error)
+		}
 	}
 	return result, nil
 }
