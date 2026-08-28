@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "production_loc": 2425,
+    "production_files": 27,
+    "production_packages": 7,
+    "test_files": 9,
+    "production_functions": 218,
+    "decision_points": 360
+  },
+  "persistence": {
+    "module": "go.etcd.io/bbolt",
+    "entities": [
+      "CaptureJob",
+      "DocumentPage",
+      "AssetResource",
+      "BundleManifest"
+    ],
+    "reopen_test": "TestPersistenceSurvivesReopen"
+  },
+  "workflows": [
+    {
+      "steps": [
+        "Record a bundle request and initialize a persistent CaptureJob.",
+        "Discover same-origin DocumentPage and AssetResource references.",
+        "Fetch resources, write successful files, and persist outcomes.",
+        "Render index.html and mark the BundleManifest complete or incomplete."
+      ],
+      "test": "TestWorkflowCreateBundle"
+    },
+    {
+      "steps": [
+        "Close and reopen the bbolt store for a saved bundle.",
+        "Load the CaptureJob, DocumentPage, AssetResource, and BundleManifest entities.",
+        "Aggregate persisted failures and external-link notices.",
+        "Export a deterministic status summary for the operator."
+      ],
+      "test": "TestWorkflowQueryBundle"
+    },
+    {
+      "steps": [
+        "Collect fetched pages and copied assets for local navigation.",
+        "Collect ExternalLinkNotice records and failed resource details.",
+        "Render stable HTML with relative links and warning sections.",
+        "Write index.html and verify the offline directory is readable."
+      ],
+      "test": "TestWorkflowRenderIndex"
+    }
+  ]
+}
